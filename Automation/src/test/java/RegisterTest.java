@@ -27,7 +27,7 @@ public class RegisterTest {
 	
 	@BeforeTest 
 	void setupTestCase() {
-		chrDrive = new GoogleChromeWebProperties().drive;
+		chrDrive = new GoogleChromeWebProperties().getWebDriver();
 	}
 	
 	@Test

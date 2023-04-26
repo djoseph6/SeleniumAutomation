@@ -1,13 +1,14 @@
 package outputWrite.Excel;
 
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.*;
 
 import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -18,7 +19,7 @@ public class WriteToExcel {
 	private static final String sheetName = "Data Output";
 	private static XSSFWorkbook workBook; //creating a empty excel workbook
 	private static XSSFSheet sheet;
-	private static FileInputStream excelFile;
+	private static XSSFCellStyle formulaBkgColor; 
 	private static FileOutputStream outStream;		//initialize FOS object
 	private static final Logger log = Logger.getLogger(WriteToExcel.class);
 	private static Object empData[][] = {
@@ -38,7 +39,7 @@ public class WriteToExcel {
 			
 			return empData1;
 	 }
-	//Creates workbook and worksheet to work with.
+	//Creates workbook, worksheet and cell style to work with.
 	public static void createExcelFileAndSheet() throws IOException {
 		workBook = new XSSFWorkbook();
 			log.info("Creating new workbook");		//Log attempt to create new workbook
@@ -116,12 +117,14 @@ public class WriteToExcel {
 	public static void addFormulaCellToExcelSheet() throws IOException {
 		if(sheet!= null) {		//if passed in sheet is not null
 			int rows = sheet.getLastRowNum();		//get how many rows are in the sheet
+			setCellStyleProperties();		//sets properties for cell style
 			
-			forloop1: for(int r=1; r<rows+1; r++){		//Outer forloop to interate through sheet rows
+			 for(int r=1; r<rows+1; r++){		//Outer forloop to interate through sheet rows
 				XSSFRow row = sheet.getRow(r);		//For each worksheet row, create row object from it
 				int lastCellNum = row.getLastCellNum();		//assign last row cell index to variable
 				row.createCell(lastCellNum, CellType.FORMULA);		//create a new cell at last cell index and assign cell type as formula
 				row.getCell(lastCellNum).setCellFormula("A"+(r+1)+">101");		//set formula to compare column A(empid) to 101
+				row.getCell(lastCellNum).setCellStyle(formulaBkgColor);
 			}
 			createAndWriteWorkbookFile();
 		}else {
@@ -140,8 +143,16 @@ public class WriteToExcel {
 		}catch(Exception e) {
 			e.getStackTrace();	//print exception if attempt fails
 		}finally {
-			outStream.close();	//close fileoutputstream object
+			outStream.close();
 		}
+		
+	}
+	
+	//Supporting method for addFormulaCellToExcelSheet(). Sets style properties for XSSFCellStyle
+	private static void setCellStyleProperties() {
+		formulaBkgColor = workBook.createCellStyle();
+		formulaBkgColor.setFillForegroundColor(IndexedColors.YELLOW.getIndex());
+		formulaBkgColor.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 		
 	}
 	
